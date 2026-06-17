@@ -257,9 +257,7 @@ body{font-family:var(--sans);background:linear-gradient(170deg,#e8f4f8 0%,#f5f0e
 .install-modal .browser-steps.show{display:block}
 .install-modal .btn-row{display:flex;gap:8px;justify-content:center;margin-top:12px}
 
-/* 首次设置页 */
-.setup-overlay{display:none;position:fixed;inset:0;background:linear-gradient(170deg,#e8f4f8,#f5f0e5,#fff5e8,#e0f2fe);z-index:999;flex-direction:column;align-items:center;justify-content:center;padding:20px;overflow-y:auto}
-.setup-overlay.show{display:flex}
+
 .setup-card{background:var(--glass);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-radius:var(--radius);padding:30px 24px;max-width:440px;width:100%;box-shadow:var(--shadow-lg);border:1px solid var(--glass-border);text-align:center}
 .setup-card h1{font-size:1.5rem;color:var(--ocean);margin-bottom:6px}
 .setup-card .sub{font-size:.8rem;color:var(--text2);margin-bottom:20px;line-height:1.6}
@@ -460,46 +458,8 @@ body{font-family:var(--sans);background:linear-gradient(170deg,#e8f4f8 0%,#f5f0e
 // ========== 配置（硬编码——别人部署时换成自己的） ==========
 const SUPABASE_URL='https://nctkutjmjyvccnnwzddt.supabase.co';
 const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5jdGt1dGptanl2Y2Nubnd6ZGR0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2NDE1MTEsImV4cCI6MjA5NzIxNzUxMX0.hCylCiO0pdkW9vsRB8kw6tBUL1FlVPxz_qO5yXOaqVw';
-const H={'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json'};
 let H=SUPABASE_KEY?{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json'}:null;
 
-// ========== 首次设置 ==========
-function autoSaveSetup(){
-  try{
-    const u=document.getElementById('setupUrl').value.trim();
-    const k=document.getElementById('setupKey').value.trim();
-    if(u&&k){localStorage.setItem('lr_url',u);localStorage.setItem('lr_key',k)}
-  }catch(e){}
-}
-async function finishSetup(btn){
-  const u=document.getElementById('setupUrl').value.trim();
-  const k=document.getElementById('setupKey').value.trim();
-  if(!u||!k){alert('请填写 Supabase URL 和 Key');return}
-  // 先保存配置
-  localStorage.setItem('lr_url',u);localStorage.setItem('lr_key',k);
-  SUPABASE_URL=u;SUPABASE_KEY=k;H={'apikey':k,'Authorization':'Bearer '+k,'Content-Type':'application/json'};
-  btn.textContent='⏳ 连接中...';btn.disabled=true;
-  // 隐藏设置页
-  document.getElementById('setupOverlay').classList.remove('show');
-  try{
-    const res=await fetch(u+'/rest/v1/documents?select=id&limit=1',{headers:H});
-    if(!res.ok)throw new Error('HTTP '+res.status);
-    await loadDocs();await loadCountdowns();await loadIdeas();await loadMemories();await loadLifeMoments();
-  }catch(e){
-    // 连接失败但已进入主页，显示顶部提示
-    showTopBanner('⚠️ 连接失败：'+e.message+' — 请确认 Supabase 中已执行 setup.sql');
-  }
-}
-function skipSetup(){
-  if(localStorage.getItem('lr_url')){
-    document.getElementById('setupOverlay').classList.remove('show');
-    loadDocs();loadCountdowns();loadIdeas();loadMemories();loadLifeMoments();return;
-  }
-  if(confirm('跳过设置将使用默认演示数据库（只读，不能保存）。确定跳过？')){
-    document.getElementById('setupOverlay').classList.remove('show');
-    loadDocs();loadCountdowns();loadIdeas();loadMemories();loadLifeMoments();
-  }
-}
 
 const $=s=>document.querySelector(s),esc=t=>t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 const fmtSize=b=>b<1024?b+' B':b<1048576?(b/1024).toFixed(1)+' KB':(b/1048576).toFixed(1)+' MB';
@@ -900,9 +860,7 @@ $('#colorCard').style.background='linear-gradient(135deg,#38bdf8,#0ea5e9)';
 
 // 密码框回车键
 // 设置页回车提交
-if(document.getElementById('setupKey')){document.getElementById('setupKey').addEventListener('keydown',function(e){if(e.key==='Enter')finishSetup(document.getElementById('setupBtn'))})}
 
-// 启动由 setup IIFE 或 finishSetup 触发
 
 // ========== PWA 安装 ==========
 let installPrompt=null;
@@ -931,31 +889,6 @@ function closeInstallModal(){document.getElementById('installModal').classList.r
 if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(()=>{})}
 
 function showTopBanner(msg){var b=document.getElementById('topBanner');b.textContent=msg;b.style.display='block'}
-
-async function finishSetup(btn){
-  const u=document.getElementById('setupUrl').value.trim();
-  const k=document.getElementById('setupKey').value.trim();
-  if(!u||!k){alert('请填写 Supabase URL 和 Key');return}
-  btn.textContent='⏳ 连接中...';btn.disabled=true;
-  // 先保存，再连接——连接失败也保留配置。同步写 cookie 做双保险
-  localStorage.setItem('lr_url',u);localStorage.setItem('lr_key',k);
-  try{document.cookie='lr_url='+encodeURIComponent(u)+';max-age=31536000;path=/;SameSite=Lax'}catch(e){}
-  try{document.cookie='lr_key='+encodeURIComponent(k)+';max-age=31536000;path=/;SameSite=Lax'}catch(e){}
-  // 验证是否写入成功
-  if(!localStorage.getItem('lr_key')){alert('⚠️ 浏览器不支持本地存储，请关闭无痕模式或检查隐私设置');return}
-  SUPABASE_URL=u;SUPABASE_KEY=k;H={'apikey':k,'Authorization':'Bearer '+k,'Content-Type':'application/json'};
-  try{
-    const res=await fetch(u+'/rest/v1/documents?select=id&limit=1',{headers:{'apikey':k,'Authorization':'Bearer '+k,'Content-Type':'application/json'}});
-    if(!res.ok)throw new Error('HTTP '+res.status);
-  }catch(e){
-    btn.textContent='✨ 开始使用';btn.disabled=false;
-    alert('⚠️ 连接失败（配置已保存）：'+e.message+'\n\n下次打开不会再弹此页\n请检查 Supabase 是否已执行 setup.sql');
-    return;
-  }
-  document.getElementById('setupOverlay').classList.remove('show');
-  await loadDocs();await loadCountdowns();await loadIdeas();await loadMemories();await loadLifeMoments();
-  showQuote();showColor();initDatePicker('countdownPicker');initDatePicker('lifePicker');
-}
 
 // 启动
 initDatePicker('countdownPicker');initDatePicker('lifePicker');
