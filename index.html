@@ -612,7 +612,6 @@ const QUOTES=[
   {t:'时间从来不语，却回答了所有问题。',s:'人民日报'},
 ];let quoteIdx=Math.floor(Math.random()*QUOTES.length);
 function showQuote(){$('#dailyQuote').textContent=QUOTES[quoteIdx].t;$('#dailyQuoteSrc').textContent=QUOTES[quoteIdx].s?('—— '+QUOTES[quoteIdx].s):''}
-function showColor(){$('#colorCard').style.setProperty('--daily-color',dailyColor());$('#colorCard').textContent=dailyColor()}
 
 // ========== 💡 灵感 ==========
 let ideas=[],ideaFilter='all',editingIdeaId=null;
