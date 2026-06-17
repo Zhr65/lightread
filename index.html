@@ -273,24 +273,6 @@ body{font-family:var(--sans);background:linear-gradient(170deg,#e8f4f8 0%,#f5f0e
 <!-- 顶部提示条 -->
 <div id="topBanner" style="display:none;background:#fef2f2;color:#dc2626;padding:8px 14px;text-align:center;font-size:.72rem;border-bottom:1px solid #fecaca;cursor:pointer" onclick="this.style.display='none'"></div>
 
-<!-- 首次设置页 -->
-<div class="setup-overlay show" id="setupOverlay">
-  <div class="setup-card">
-    <h1>🌊 轻读</h1>
-    <div class="sub">你的个人轻量空间<br>阅读 · 灵感 · 倒数日 · 记忆 · 生活</div>
-    <div class="steps">
-      <b>🔧 首次设置（5 分钟，一次就好）</b><br>
-      1️⃣ 打开 <a href="https://supabase.com" target="_blank">supabase.com</a>，注册账号（免费）<br>
-      2️⃣ 创建新项目 → 进 SQL Editor → 粘贴 <b>setup.sql</b> 全部内容 → 点 Run<br>
-      3️⃣ 左侧 Settings → API → 把下面两个值复制过来：
-    </div>
-    <input type="text" id="setupUrl" placeholder="Project URL（https://xxxxx.supabase.co）">
-    <input type="text" id="setupKey" placeholder="anon public key（eyJ 开头的一长串）">
-    <div class="hint">🔒 你的数据只存在你自己的 Supabase 数据库里，不经任何第三方。配置保存在浏览器本地。</div>
-    <button class="btn" id="setupBtn" onclick="finishSetup(this)" style="width:100%;padding:14px;font-size:.9rem">✨ 开始使用</button>
-  </div>
-</div>
-
 <!-- Tab 栏 -->
 <div class="tabs" id="tabs">
   <button class="tab-btn active" data-panel="reader"><span class="icon">📖</span>阅读</button>
@@ -475,12 +457,10 @@ body{font-family:var(--sans);background:linear-gradient(170deg,#e8f4f8 0%,#f5f0e
 </div>
 
 <script>
-// ========== 配置（从 localStorage 读取，cookie 兜底） ==========
-function getCookie(n){var m=document.cookie.match('(^|;)\\s*'+n+'\\s*=\\s*([^;]+)');return m?decodeURIComponent(m[2]):''}
-let SUPABASE_URL=localStorage.getItem('lr_url')||getCookie('lr_url')||'';
-let SUPABASE_KEY=localStorage.getItem('lr_key')||getCookie('lr_key')||'';
-// 把 cookie 同步回 localStorage
-if(!localStorage.getItem('lr_key')&&getCookie('lr_key')){localStorage.setItem('lr_url',getCookie('lr_url'));localStorage.setItem('lr_key',getCookie('lr_key'))}
+// ========== 配置（硬编码——别人部署时换成自己的） ==========
+const SUPABASE_URL='https://nctkutjmjyvccnnwzddt.supabase.co';
+const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5jdGt1dGptanl2Y2Nubnd6ZGR0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2NDE1MTEsImV4cCI6MjA5NzIxNzUxMX0.hCylCiO0pdkW9vsRB8kw6tBUL1FlVPxz_qO5yXOaqVw';
+const H={'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json'};
 let H=SUPABASE_KEY?{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json'}:null;
 
 // ========== 首次设置 ==========
@@ -977,20 +957,10 @@ async function finishSetup(btn){
   showQuote();showColor();initDatePicker('countdownPicker');initDatePicker('lifePicker');
 }
 
-// 已有配置直接进，没有则显示设置页
-(function(){
-  if(SUPABASE_KEY){
-    document.getElementById('setupOverlay').classList.remove('show');
-    loadDocs();loadCountdowns();loadIdeas();loadMemories();loadLifeMoments();
-    showQuote();showColor();initDatePicker('countdownPicker');initDatePicker('lifePicker');
-  }else{
-    // 显示 localStorage 状态便于排查
-    var info=document.createElement('div');
-    info.style.cssText='font-size:.65rem;color:#999;margin-top:10px';
-    info.textContent='当前浏览器未检测到已保存的配置';
-    document.querySelector('.setup-card').appendChild(info);
-  }
-})();
+// 启动
+initDatePicker('countdownPicker');initDatePicker('lifePicker');
+loadDocs();loadCountdowns();loadIdeas();loadMemories();loadLifeMoments();
+showQuote();showColor();
 </script>
 
 <!-- 安装按钮 -->
