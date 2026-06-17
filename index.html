@@ -954,16 +954,17 @@ async function finishSetup(btn){
   const k=document.getElementById('setupKey').value.trim();
   if(!u||!k){alert('请填写 Supabase URL 和 Key');return}
   btn.textContent='⏳ 连接中...';btn.disabled=true;
+  // 先保存，再连接——连接失败也保留配置
+  localStorage.setItem('lr_url',u);localStorage.setItem('lr_key',k);
+  SUPABASE_URL=u;SUPABASE_KEY=k;H={'apikey':k,'Authorization':'Bearer '+k,'Content-Type':'application/json'};
   try{
     const res=await fetch(u+'/rest/v1/documents?select=id&limit=1',{headers:{'apikey':k,'Authorization':'Bearer '+k,'Content-Type':'application/json'}});
     if(!res.ok)throw new Error('HTTP '+res.status);
   }catch(e){
     btn.textContent='✨ 开始使用';btn.disabled=false;
-    alert('❌ 连接失败：'+e.message+'\n\n请确认：\n1. URL 和 Key 是否正确\n2. 是否已在 Supabase 执行 setup.sql');
+    alert('⚠️ 连接失败（配置已保存）：'+e.message+'\n\n下次打开不会再弹此页\n请检查 Supabase 是否已执行 setup.sql');
     return;
   }
-  localStorage.setItem('lr_url',u);localStorage.setItem('lr_key',k);
-  SUPABASE_URL=u;SUPABASE_KEY=k;H={'apikey':k,'Authorization':'Bearer '+k,'Content-Type':'application/json'};
   document.getElementById('setupOverlay').classList.remove('show');
   await loadDocs();await loadCountdowns();await loadIdeas();await loadMemories();await loadLifeMoments();
   showQuote();showColor();initDatePicker('countdownPicker');initDatePicker('lifePicker');
