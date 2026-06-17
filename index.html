@@ -3,7 +3,7 @@
 <title>🌊 轻读 · 生活 + 效率</title>
 
 <!-- PWA -->
-<link rel="manifest" href="/manifest.json">
+<link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="轻读">
@@ -906,8 +906,8 @@ if(document.getElementById('setupKey')){document.getElementById('setupKey').addE
 // ========== PWA 安装 ==========
 let installPrompt=null;
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installPrompt=e});
-// 安卓安装按钮始终显示
-$('#installBtn').classList.add('show');
+// 页面加载完后显示安装按钮
+document.addEventListener('DOMContentLoaded',function(){$('#installBtn').classList.add('show')});
 function showInstall(){
   if(installPrompt){installPrompt.prompt();installPrompt.userChoice.then(r=>{if(r.outcome==='accepted')$('#installBtn').classList.remove('show')});return}
   // 自动检测浏览器
@@ -927,7 +927,7 @@ function showInstallModal(){
 function closeInstallModal(){document.getElementById('installModal').classList.remove('show')}
 
 // 注册 SW
-if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(()=>{})}
+if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch(()=>{})}
 
 function showTopBanner(msg){var b=document.getElementById('topBanner');b.textContent=msg;b.style.display='block'}
 
