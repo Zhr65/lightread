@@ -976,6 +976,12 @@ async function finishSetup(btn){
     document.getElementById('setupOverlay').classList.remove('show');
     loadDocs();loadCountdowns();loadIdeas();loadMemories();loadLifeMoments();
     showQuote();showColor();initDatePicker('countdownPicker');initDatePicker('lifePicker');
+  }else{
+    // 显示 localStorage 状态便于排查
+    var info=document.createElement('div');
+    info.style.cssText='font-size:.65rem;color:#999;margin-top:10px';
+    info.textContent='当前浏览器未检测到已保存的配置';
+    document.querySelector('.setup-card').appendChild(info);
   }
 })();
 </script>
