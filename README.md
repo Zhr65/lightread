@@ -1,8 +1,6 @@
 # 🌊 轻读
 
-你的个人轻量空间——阅读 · 灵感 · 倒数日 · 记忆 · 生活
-
-**一个链接，手机电脑都能用，数据云端同步。**
+MD 阅读 · 灵感 · 倒数日 · 记忆 · 生活记录
 
 ---
 
@@ -12,13 +10,23 @@
 
 [supabase.com](https://supabase.com) → 注册 → 创建项目 → SQL Editor → 粘贴 `setup.sql` → Run
 
-### ② 部署网页
+Settings → API → 记下 **Project URL** 和 **anon public key**
+**Project URL**:Integrations中的Data API（数据API），拿到url后把/rest/v1/去掉
+**anon public key**:Project Settings中的API Keys的Legacy anon, service_role API keys
+### ② 改配置
 
-[tiiny.host](https://tiiny.host) → 拖入 `md-reader-cloud` 文件夹 → 得到链接
+打开 `index.html`，找到开头这两行：
 
-### ③ 设置
+```javascript
+const SUPABASE_URL='https://xxxxxxxx.supabase.co';    // ← 改成你的 Project URL
+const SUPABASE_KEY='eyJhbGciOiJI...';                 // ← 改成你的 anon key
+```
 
-打开链接 → 填 Supabase 的 Project URL 和 anon key → 开始使用
+### ③ 部署
+
+- **Gitee**：新建仓库 → 上传所有文件 → 服务 → Gitee Pages → 开启
+- **GitHub**：新建仓库 → 上传所有文件 → Settings → Pages → 开启
+- **拖拽部署**：[tiiny.host](https://tiiny.host) → 上传 ZIP → 得到链接
 
 ---
 
@@ -26,12 +34,13 @@
 
 | 📖 阅读 | 💡 灵感 | 📅 倒数日 | 🧠 记忆 | 🌸 生活 |
 |---------|---------|----------|---------|---------|
-| MD 导入/编辑 | 快速捕捉 | 农历/阳历 | 分类标签 | 照片+GPS |
-| 自动保存 | 孵化→进行→归档 | 生日/纪念日 | 全文搜索 | 美好瞬间 |
-| 代码高亮 | 语音录入 | 倒数天数 | 知识碎片 | 旅程记录 |
+| MD 导入 | 快速捕捉 | 农历/阳历 | 分类标签 | 照片+GPS |
+| 自动保存 | 孵化→归档 | 倒数天数 | 全文搜索 | 美好瞬间 |
+
+---
 
 ## 手机使用
 
-- **PWA 装桌面**：Safari / Chrome 打开 → 添加到主屏幕 → 全屏 App
-- **小组件**：装 Scriptable → 导入 `widget.js` → 桌面显示倒数日
-- **安卓**：Chrome → ⋮ → 安装应用 / 点右下角 📲 按钮
+- **iPhone**：Safari → 分享 → 添加到主屏幕
+- **安卓**：Chrome → ⋮ → 安装应用
+- **小组件**：Scriptable App → 导入 `widget.js`
