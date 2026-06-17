@@ -492,17 +492,18 @@ async function finishSetup(btn){
   const u=document.getElementById('setupUrl').value.trim();
   const k=document.getElementById('setupKey').value.trim();
   if(!u||!k){alert('请填写 Supabase URL 和 Key');return}
-  btn.textContent='⏳ 连接中...';btn.disabled=true;
+  // 无论如何先保存，下次刷新不再弹设置页
   localStorage.setItem('lr_url',u);localStorage.setItem('lr_key',k);
   SUPABASE_URL=u;SUPABASE_KEY=k;H={'apikey':k,'Authorization':'Bearer '+k,'Content-Type':'application/json'};
+  btn.textContent='⏳ 连接中...';btn.disabled=true;
   try{
     const res=await fetch(u+'/rest/v1/documents?select=id&limit=1',{headers:H});
-    if(!res.ok)throw new Error('连接失败 HTTP '+res.status+' — 请检查 URL 和 Key 是否正确，以及是否执行了 setup.sql');
-    $('#setupOverlay').classList.remove('show');
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    document.getElementById('setupOverlay').classList.remove('show');
     await loadDocs();await loadCountdowns();await loadIdeas();await loadMemories();await loadLifeMoments();
   }catch(e){
-    btn.textContent='✅ 开始使用';btn.disabled=false;
-    alert('❌ 连接失败：'+e.message);
+    btn.textContent='✨ 开始使用';btn.disabled=false;
+    alert('⚠️ 连接失败：'+e.message+'\n\n但配置已保存，下次打开不会再弹此页。\n请检查：\n1. URL 是否以 https:// 开头\n2. Key 是否完整复制\n3. 是否在 Supabase 执行了 setup.sql');
   }
 }
 function skipSetup(){
