@@ -273,16 +273,21 @@ body{font-family:var(--sans);background:linear-gradient(170deg,#e8f4f8 0%,#f5f0e
 <!-- 顶部提示条 -->
 <div id="topBanner" style="display:none;background:#fef2f2;color:#dc2626;padding:8px 14px;text-align:center;font-size:.72rem;border-bottom:1px solid #fecaca;cursor:pointer" onclick="this.style.display='none'"></div>
 
-<!-- 密码锁屏 -->
-<div id="lockScreen" style="display:none;position:fixed;inset:0;background:linear-gradient(170deg,#e8f4f8,#f5f0e5,#fff5e8,#e0f2fe);z-index:9999;flex-direction:column;align-items:center;justify-content:center;padding:20px">
-  <div style="background:rgba(255,255,255,.7);backdrop-filter:blur(16px);border-radius:18px;padding:30px 24px;max-width:380px;width:100%;text-align:center;box-shadow:0 8px 32px rgba(0,80,120,.12);border:1px solid rgba(255,255,255,.3)">
-    <div style="font-size:3rem;margin-bottom:8px">🔐</div>
-    <h2 id="lockTitle" style="font-size:1.3rem;color:#0077b6;margin-bottom:6px">设置主密码</h2>
-    <div id="lockSub" style="font-size:.8rem;color:#6b7d8e;margin-bottom:16px;line-height:1.5">首次使用，请设置一个主密码<br>用于保护你的数据安全</div>
-    <input type="password" id="lockPwd1" placeholder="输入主密码（6 位以上）" style="width:100%;padding:12px;border:1px solid #d0dbe8;border-radius:10px;font-size:.88rem;outline:none;margin-bottom:8px;text-align:center" maxlength="32">
-    <input type="password" id="lockPwd2" placeholder="再次输入确认" style="width:100%;padding:12px;border:1px solid #d0dbe8;border-radius:10px;font-size:.88rem;outline:none;margin-bottom:14px;text-align:center;display:none" maxlength="32">
-    <button class="btn" id="lockBtn" onclick="handleLock()" style="width:100%;padding:14px;font-size:.9rem">🔒 设置密码</button>
-    <div id="lockError" style="color:#dc2626;font-size:.72rem;margin-top:8px;display:none"></div>
+<!-- 首次设置页 -->
+<div class="setup-overlay show" id="setupOverlay">
+  <div class="setup-card">
+    <h1>🌊 轻读</h1>
+    <div class="sub">你的个人轻量空间<br>阅读 · 灵感 · 倒数日 · 记忆 · 生活</div>
+    <div class="steps">
+      <b>🔧 首次设置（5 分钟，一次就好）</b><br>
+      1️⃣ 打开 <a href="https://supabase.com" target="_blank">supabase.com</a>，注册账号（免费）<br>
+      2️⃣ 创建新项目 → 进 SQL Editor → 粘贴 <b>setup.sql</b> 全部内容 → 点 Run<br>
+      3️⃣ 左侧 Settings → API → 把下面两个值复制过来：
+    </div>
+    <input type="text" id="setupUrl" placeholder="Project URL（https://xxxxx.supabase.co）">
+    <input type="text" id="setupKey" placeholder="anon public key（eyJ 开头的一长串）">
+    <div class="hint">🔒 你的数据只存在你自己的 Supabase 数据库里，不经任何第三方。配置保存在浏览器本地。</div>
+    <button class="btn" id="setupBtn" onclick="finishSetup(this)" style="width:100%;padding:14px;font-size:.9rem">✨ 开始使用</button>
   </div>
 </div>
 
@@ -470,81 +475,10 @@ body{font-family:var(--sans);background:linear-gradient(170deg,#e8f4f8 0%,#f5f0e
 </div>
 
 <script>
-// ========== 配置（优先 localStorage，其次硬编码） ==========
-const DEFAULT_URL='https://nctkutjmjyvccnnwzddt.supabase.co';
-const DEFAULT_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5jdGt1dGptanl2Y2Nubnd6ZGR0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2NDE1MTEsImV4cCI6MjA5NzIxNzUxMX0.hCylCiO0pdkW9vsRB8kw6tBUL1FlVPxz_qO5yXOaqVw';
-let SUPABASE_URL=localStorage.getItem('lr_url')||DEFAULT_URL;
-let SUPABASE_KEY=DEFAULT_KEY;
-let H={'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json'};
-
-// ========== 密码锁 ==========
-function simpleHash(s){let h=0;for(let i=0;i<s.length;i++){h=((h<<5)-h)+s.charCodeAt(i);h|=0}return Math.abs(h).toString(16).padStart(8,'0')}
-function xorString(s,key){let r='';for(let i=0;i<s.length;i++){r+=String.fromCharCode(s.charCodeAt(i)^key.charCodeAt(i%key.length))}return r}
-function encryptKey(pw){const hash=simpleHash(pw).repeat(8);return btoa(xorString(SUPABASE_KEY,hash))}
-function decryptKey(pw,enc){try{const hash=simpleHash(pw).repeat(8);return xorString(atob(enc),hash)}catch(e){return''}}
-
-function hasPassword(){return!!localStorage.getItem('lr_locked')}
-function isSessionUnlocked(){return sessionStorage.getItem('lr_unlocked')==='1'}
-
-function showLockScreen(isNew){
-  document.getElementById('lockScreen').style.display='flex';
-  document.getElementById('lockPwd2').style.display=isNew?'block':'none';
-  document.getElementById('lockTitle').textContent=isNew?'设置主密码':'输入密码';
-  document.getElementById('lockSub').innerHTML=isNew?'首次使用，请设置一个主密码<br>用于保护你的数据安全':'请输入主密码解锁';
-  document.getElementById('lockBtn').textContent=isNew?'🔒 设置密码':'🔓 解锁';
-  document.getElementById('lockError').style.display='none';
-  document.getElementById('lockPwd1').value='';
-  document.getElementById('lockPwd2').value='';
-  document.getElementById('lockBtn').dataset.mode=isNew?'new':'unlock';
-}
-
-function handleLock(){
-  const btn=document.getElementById('lockBtn');
-  const mode=btn.dataset.mode;
-  const p1=document.getElementById('lockPwd1').value;
-  if(mode==='new'){
-    const p2=document.getElementById('lockPwd2').value;
-    if(p1.length<4){showLockError('密码至少 4 位');return}
-    if(p1!==p2){showLockError('两次输入不一致');return}
-    localStorage.setItem('lr_locked',encryptKey(p1));
-    sessionStorage.setItem('lr_unlocked','1');
-    unlockApp();
-  }else{
-    const enc=localStorage.getItem('lr_locked');
-    const key=decryptKey(p1,enc);
-    if(!key||key.length<20){showLockError('密码错误');return}
-    SUPABASE_KEY=key;H={'apikey':key,'Authorization':'Bearer '+key,'Content-Type':'application/json'};
-    sessionStorage.setItem('lr_unlocked','1');
-    unlockApp();
-  }
-}
-
-function showLockError(msg){
-  const el=document.getElementById('lockError');
-  el.textContent=msg;el.style.display='block';
-  document.getElementById('lockPwd1').value='';
-  document.getElementById('lockPwd2').value='';
-}
-
-function unlockApp(){
-  document.getElementById('lockScreen').style.display='none';
-  loadDocs();loadCountdowns();loadIdeas();loadMemories();loadLifeMoments();
-  showQuote();showColor();
-  initDatePicker('countdownPicker');initDatePicker('lifePicker');
-}
-
-// ========== 启动：检查密码锁 ==========
-(function initLock(){
-  if(isSessionUnlocked()){
-    document.getElementById('lockScreen').style.display='none';
-    return;
-  }
-  if(hasPassword()){
-    showLockScreen(false);
-  }else{
-    showLockScreen(true);
-  }
-})();
+// ========== 配置（从 localStorage 读取，首次使用需在设置页填入） ==========
+let SUPABASE_URL=localStorage.getItem('lr_url')||'';
+let SUPABASE_KEY=localStorage.getItem('lr_key')||'';
+let H=SUPABASE_KEY?{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json'}:null;
 
 // ========== 首次设置 ==========
 function autoSaveSetup(){
@@ -590,6 +524,7 @@ function fmtDate(iso){if(!iso)return'';const d=new Date(iso),n=new Date(),df=n-d
 
 // ========== 通用 API ==========
 async function api(method,table,opts={}){
+  if(!H)throw new Error('未配置数据库');
   let url=SUPABASE_URL+'/rest/v1/'+table;
   if(opts.query) url+='?'+opts.query;
   const hh={...H};if(opts.prefer) hh.Prefer=opts.prefer;
@@ -981,10 +916,10 @@ function getDateValue(id){
 $('#colorCard').style.background='linear-gradient(135deg,#38bdf8,#0ea5e9)';
 
 // 密码框回车键
-document.getElementById('lockPwd1').addEventListener('keydown',function(e){if(e.key==='Enter')handleLock()});
-document.getElementById('lockPwd2').addEventListener('keydown',function(e){if(e.key==='Enter')handleLock()});
+// 设置页回车提交
+if(document.getElementById('setupKey')){document.getElementById('setupKey').addEventListener('keydown',function(e){if(e.key==='Enter')finishSetup(document.getElementById('setupBtn'))})}
 
-// 启动由 unlockApp() 触发
+// 启动由 setup IIFE 或 finishSetup 触发
 
 // ========== PWA 安装 ==========
 let installPrompt=null;
@@ -1014,13 +949,32 @@ if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catc
 
 function showTopBanner(msg){var b=document.getElementById('topBanner');b.textContent=msg;b.style.display='block'}
 
-// 已有 localStorage 配置则隐藏设置页，否则预填默认值
+async function finishSetup(btn){
+  const u=document.getElementById('setupUrl').value.trim();
+  const k=document.getElementById('setupKey').value.trim();
+  if(!u||!k){alert('请填写 Supabase URL 和 Key');return}
+  btn.textContent='⏳ 连接中...';btn.disabled=true;
+  try{
+    const res=await fetch(u+'/rest/v1/documents?select=id&limit=1',{headers:{'apikey':k,'Authorization':'Bearer '+k,'Content-Type':'application/json'}});
+    if(!res.ok)throw new Error('HTTP '+res.status);
+  }catch(e){
+    btn.textContent='✨ 开始使用';btn.disabled=false;
+    alert('❌ 连接失败：'+e.message+'\n\n请确认：\n1. URL 和 Key 是否正确\n2. 是否已在 Supabase 执行 setup.sql');
+    return;
+  }
+  localStorage.setItem('lr_url',u);localStorage.setItem('lr_key',k);
+  SUPABASE_URL=u;SUPABASE_KEY=k;H={'apikey':k,'Authorization':'Bearer '+k,'Content-Type':'application/json'};
+  document.getElementById('setupOverlay').classList.remove('show');
+  await loadDocs();await loadCountdowns();await loadIdeas();await loadMemories();await loadLifeMoments();
+  showQuote();showColor();initDatePicker('countdownPicker');initDatePicker('lifePicker');
+}
+
+// 已有配置直接进，没有则显示设置页
 (function(){
-  var ov=document.getElementById('setupOverlay');if(!ov)return;
-  if(localStorage.getItem('lr_url')){ov.classList.remove('show')}
-  else{
-    var u=document.getElementById('setupUrl');if(u)u.value=SUPABASE_URL;
-    var k=document.getElementById('setupKey');if(k)k.value=SUPABASE_KEY;
+  if(SUPABASE_KEY){
+    document.getElementById('setupOverlay').classList.remove('show');
+    loadDocs();loadCountdowns();loadIdeas();loadMemories();loadLifeMoments();
+    showQuote();showColor();initDatePicker('countdownPicker');initDatePicker('lifePicker');
   }
 })();
 </script>
