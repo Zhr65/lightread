@@ -1,0 +1,12 @@
+{
+  "name": "轻读 · 生活+效率",
+  "short_name": "轻读",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f8f5f0",
+  "theme_color": "#0ea5e9",
+  "description": "MD阅读 · 灵感 · 倒数日 · 记忆 · 生活记录",
+  "icons": [
+    { "src": "/icon.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
