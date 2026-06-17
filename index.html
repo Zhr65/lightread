@@ -284,7 +284,7 @@ body{font-family:var(--sans);background:linear-gradient(170deg,#e8f4f8 0%,#f5f0e
     <input type="text" id="setupUrl" placeholder="Project URL（https://xxxxx.supabase.co）" oninput="autoSaveSetup()">
     <input type="text" id="setupKey" placeholder="anon public key（eyJ 开头的一长串）" oninput="autoSaveSetup()">
     <div class="hint">🔒 你的数据只存在你自己的 Supabase 数据库里，不经任何第三方。配置保存在浏览器本地。</div>
-    <button class="btn" onclick="finishSetup()" style="width:100%;padding:14px;font-size:.9rem">✨ 开始使用</button>
+    <button class="btn" id="setupBtn" onclick="finishSetup(this)" style="width:100%;padding:14px;font-size:.9rem">✨ 开始使用</button>
     <div style="font-size:.65rem;color:var(--text2);margin-top:12px">已有配置？<a href="#" onclick="skipSetup()" style="color:var(--ocean)">直接进入</a></div>
   </div>
 </div>
@@ -482,13 +482,17 @@ let H={'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Typ
 
 // ========== 首次设置 ==========
 function autoSaveSetup(){
-  const u=$('#setupUrl').value.trim(),k=$('#setupKey').value.trim();
-  if(u&&k){localStorage.setItem('lr_url',u);localStorage.setItem('lr_key',k)}
+  try{
+    const u=document.getElementById('setupUrl').value.trim();
+    const k=document.getElementById('setupKey').value.trim();
+    if(u&&k){localStorage.setItem('lr_url',u);localStorage.setItem('lr_key',k)}
+  }catch(e){}
 }
-async function finishSetup(){
-  const u=$('#setupUrl').value.trim(),k=$('#setupKey').value.trim();
+async function finishSetup(btn){
+  const u=document.getElementById('setupUrl').value.trim();
+  const k=document.getElementById('setupKey').value.trim();
   if(!u||!k){alert('请填写 Supabase URL 和 Key');return}
-  const btn=event.target;btn.textContent='⏳ 连接中...';btn.disabled=true;
+  btn.textContent='⏳ 连接中...';btn.disabled=true;
   localStorage.setItem('lr_url',u);localStorage.setItem('lr_key',k);
   SUPABASE_URL=u;SUPABASE_KEY=k;H={'apikey':k,'Authorization':'Bearer '+k,'Content-Type':'application/json'};
   try{
@@ -502,8 +506,14 @@ async function finishSetup(){
   }
 }
 function skipSetup(){
-  if(localStorage.getItem('lr_url')){$('#setupOverlay').classList.remove('show');loadDocs();loadCountdowns();loadIdeas();loadMemories();loadLifeMoments();return}
-  if(confirm('跳过设置将使用默认演示数据库（只读，不能保存）。确定跳过？')){$('#setupOverlay').classList.remove('show');loadDocs();loadCountdowns();loadIdeas();loadMemories();loadLifeMoments()}
+  if(localStorage.getItem('lr_url')){
+    document.getElementById('setupOverlay').classList.remove('show');
+    loadDocs();loadCountdowns();loadIdeas();loadMemories();loadLifeMoments();return;
+  }
+  if(confirm('跳过设置将使用默认演示数据库（只读，不能保存）。确定跳过？')){
+    document.getElementById('setupOverlay').classList.remove('show');
+    loadDocs();loadCountdowns();loadIdeas();loadMemories();loadLifeMoments();
+  }
 }
 
 const $=s=>document.querySelector(s),esc=t=>t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
@@ -933,8 +943,14 @@ function closeInstallModal(){document.getElementById('installModal').classList.r
 if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(()=>{})}
 
 // 已有 localStorage 配置则隐藏设置页，否则预填默认值
-if(localStorage.getItem('lr_url')){$('#setupOverlay').classList.remove('show')}
-else{$('#setupUrl').value=SUPABASE_URL;$('#setupKey').value=SUPABASE_KEY}
+(function(){
+  var ov=document.getElementById('setupOverlay');if(!ov)return;
+  if(localStorage.getItem('lr_url')){ov.classList.remove('show')}
+  else{
+    var u=document.getElementById('setupUrl');if(u)u.value=SUPABASE_URL;
+    var k=document.getElementById('setupKey');if(k)k.value=SUPABASE_KEY;
+  }
+})();
 </script>
 
 <!-- 安装按钮 -->
