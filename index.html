@@ -941,27 +941,14 @@ async function finishSetup(btn){
   try{document.cookie='lr_url='+encodeURIComponent(u)+';max-age=31536000;path=/;SameSite=Lax'}catch(e){}
   try{document.cookie='lr_key='+encodeURIComponent(k)+';max-age=31536000;path=/;SameSite=Lax'}catch(e){}
   // 验证是否写入成功
-  if(!localStorage.getItem('lr_key')){alert('⚠️ 浏览器不支持本地存储，请关闭无痕模式或检查隐私设置');return}
-  SUPABASE_URL=u;SUPABASE_KEY=k;H={'apikey':k,'Authorization':'Bearer '+k,'Content-Type':'application/json'};
-  try{
-    const res=await fetch(u+'/rest/v1/documents?select=id&limit=1',{headers:{'apikey':k,'Authorization':'Bearer '+k,'Content-Type':'application/json'}});
-    if(!res.ok)throw new Error('HTTP '+res.status);
-  }catch(e){
-    btn.textContent='✨ 开始使用';btn.disabled=false;
-    alert('⚠️ 连接失败（配置已保存）：'+e.message+'\n\n下次打开不会再弹此页\n请检查 Supabase 是否已执行 setup.sql');
-    return;
-  }
-  (function(){var o=document.getElementById('setupOverlay');if(o)o.classList.remove('show')})();
-  await loadDocs();await loadCountdowns();await loadIdeas();await loadMemories();await loadLifeMoments();
-  showQuote();showColor();initDatePicker('countdownPicker');initDatePicker('lifePicker');
-}
-
-// 已有配置直接进，没有则显示设置页
-(function(){
-  loadDocs();loadCountdowns();loadIdeas();loadMemories();loadLifeMoments();
-  showQuote();showColor();initDatePicker('countdownPicker');initDatePicker('lifePicker');
-})();
+// 启动
+initDatePicker('countdownPicker');initDatePicker('lifePicker');
+loadDocs();loadCountdowns();loadIdeas();loadMemories();loadLifeMoments();
+showQuote();showColor();
 </script>
+
+<!-- 安装按钮 -->
+<button class="install-btn" id="installBtn" onclick="showInstall()">📲 安装到桌面</button>
 
 <!-- 安装按钮 -->
 <button class="install-btn" id="installBtn" onclick="showInstall()">📲 安装到桌面</button>
