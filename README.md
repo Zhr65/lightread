@@ -10,9 +10,11 @@ MD 阅读 · 灵感 · 倒数日 · 记忆 · 生活记录
 
 [supabase.com](https://supabase.com) → 注册 → 创建项目 → SQL Editor → 粘贴 `setup.sql` → Run
 
-Settings → API → 记下 **Project URL** 和 **anon public key**
-**Project URL**:Integrations中的Data API（数据API），拿到url后把/rest/v1/去掉
-**anon public key**:Project Settings中的API Keys的Legacy anon, service_role API keys
+### Settings → API → 记下 **Project URL** 和 **anon public key**
+![alt text](951f3bd0-ea65-478b-bf95-356a7ff86924.png)
+
+![alt text](3133008d-6bcf-4901-aea9-057118cf25d8.png)
+
 ### ② 改配置
 
 打开 `index.html`，找到开头这两行：
