@@ -941,6 +941,8 @@ async function finishSetup(btn){
   try{document.cookie='lr_url='+encodeURIComponent(u)+';max-age=31536000;path=/;SameSite=Lax'}catch(e){}
   try{document.cookie='lr_key='+encodeURIComponent(k)+';max-age=31536000;path=/;SameSite=Lax'}catch(e){}
   // 验证是否写入成功
+  if(!localStorage.getItem('lr_key')){alert('浏览器不支持本地存储');return}
+}
 // 启动
 initDatePicker('countdownPicker');initDatePicker('lifePicker');
 loadDocs();loadCountdowns();loadIdeas();loadMemories();loadLifeMoments();
