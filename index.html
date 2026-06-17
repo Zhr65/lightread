@@ -276,14 +276,14 @@ body{font-family:var(--sans);background:linear-gradient(170deg,#e8f4f8 0%,#f5f0e
     <h1>🌊 轻读</h1>
     <div class="sub">你的个人轻量空间<br>阅读 · 灵感 · 倒数日 · 记忆 · 生活</div>
     <div class="steps">
-      <b>🔧 首次设置（5 分钟，只需一次）</b><br>
-      1️⃣ 打开 <a href="https://supabase.com" target="_blank">supabase.com</a> 注册（免费）<br>
-      2️⃣ 创建新项目 → SQL Editor → 粘贴 <b>setup.sql</b> → Run<br>
-      3️⃣ Settings → API → 复制下方的 <b>Project URL</b> 和 <b>anon key</b> 填到下面
+      <b>🔧 首次设置（5 分钟，一次就好）</b><br>
+      1️⃣ 打开 <a href="https://supabase.com" target="_blank">supabase.com</a>，注册账号（免费）<br>
+      2️⃣ 创建新项目 → 进 SQL Editor → 粘贴 <b>setup.sql</b> 全部内容 → 点 Run<br>
+      3️⃣ 左侧 Settings → API → 把下面两个值复制过来：
     </div>
-    <input type="text" id="setupUrl" placeholder="Project URL，例：https://abc123.supabase.co" oninput="autoSaveSetup()">
+    <input type="text" id="setupUrl" placeholder="Project URL（https://xxxxx.supabase.co）" oninput="autoSaveSetup()">
     <input type="text" id="setupKey" placeholder="anon public key（eyJ 开头的一长串）" oninput="autoSaveSetup()">
-    <div class="hint">🔒 你的数据只存在你自己的 Supabase 数据库中，不会经过任何第三方</div>
+    <div class="hint">🔒 你的数据只存在你自己的 Supabase 数据库里，不经任何第三方。配置保存在浏览器本地。</div>
     <button class="btn" onclick="finishSetup()" style="width:100%;padding:14px;font-size:.9rem">✨ 开始使用</button>
     <div style="font-size:.65rem;color:var(--text2);margin-top:12px">已有配置？<a href="#" onclick="skipSetup()" style="color:var(--ocean)">直接进入</a></div>
   </div>
