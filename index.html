@@ -957,17 +957,10 @@ async function finishSetup(btn){
 }
 
 // 已有配置直接进，没有则显示设置页
-(function(){
-  if(SUPABASE_KEY){
-    document.getElementById('setupOverlay').classList.remove('show');
-    loadDocs();loadCountdowns();loadIdeas();loadMemories();loadLifeMoments();
-    showQuote();showColor();initDatePicker('countdownPicker');initDatePicker('lifePicker');
-  }else{
-    // 预填默认值
-    var u=document.getElementById('setupUrl');if(u)u.value=SUPABASE_URL||MY_URL;
-    var k=document.getElementById('setupKey');if(k)k.value=SUPABASE_KEY||MY_KEY;
-  }
-})();
+// 启动
+initDatePicker('countdownPicker');initDatePicker('lifePicker');
+loadDocs();loadCountdowns();loadIdeas();loadMemories();loadLifeMoments();
+showQuote();showColor();
 </script>
 
 <!-- 安装按钮 -->
