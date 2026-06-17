@@ -690,7 +690,7 @@ function renderCountdowns(){
   if(!countdowns.length){g.innerHTML='<p class="empty-state">还没有倒数日<br>在上方表单添加第一个 📅</p>';$('#countdownHero').innerHTML='<div class="count">📅</div><div class="label">添加你的第一个倒数日</div><div class="sub">生日、纪念日、证件到期...</div>';return}
   const sorted=countdowns.map(c=>{const isL=c.remind_before<0;return{...c,is_lunar:isL,remind_before:Math.abs(c.remind_before),remaining:calcDays(c.target_date,c.repeat_yearly,isL)}}).sort((a,b)=>a.remaining-b.remaining);
   const next=sorted.find(c=>c.remaining>=0);
-  if(next){$('#countdownHero').innerHTML=`<div class="count">${next.remaining}</div><div class="label">天 · ${esc(next.title)}</div><div class="sub">${next.target_date}${next.is_lunar?' · 农历':''}${next.repeat_yearly?' · 每年重复':''}</div>`}
+  if(next){$('#countdownHero').innerHTML=`<div class="count">${next.remaining}<span style="font-size:1.5rem;font-weight:400">天</span></div><div class="label">${esc(next.title)}</div><div class="sub">${next.target_date}${next.is_lunar?' · 农历':''}${next.repeat_yearly?' · 每年重复':''}</div>`}
   else{$('#countdownHero').innerHTML='<div class="count">📅</div><div class="label">所有倒数日已过</div><div class="sub">添加新的吧</div>'}
   g.innerHTML=sorted.map(c=>{
     const d=c.remaining;let cls;
