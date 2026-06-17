@@ -506,12 +506,6 @@ function skipSetup(){
   if(confirm('跳过设置将使用默认演示数据库（只读，不能保存）。确定跳过？')){$('#setupOverlay').classList.remove('show');loadDocs();loadCountdowns();loadIdeas();loadMemories();loadLifeMoments()}
 }
 
-// 已有配置时跳过设置页；否则预填默认值
-(function(){
-  if(localStorage.getItem('lr_url')){$('#setupOverlay').classList.remove('show')}
-  else{$('#setupUrl').value=SUPABASE_URL;$('#setupKey').value=SUPABASE_KEY}
-})();
-
 const $=s=>document.querySelector(s),esc=t=>t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 const fmtSize=b=>b<1024?b+' B':b<1048576?(b/1024).toFixed(1)+' KB':(b/1048576).toFixed(1)+' MB';
 function fmtDate(iso){if(!iso)return'';const d=new Date(iso),n=new Date(),df=n-d;if(df<6e4)return'刚刚';if(df<36e5)return Math.floor(df/6e4)+'m前';if(df<864e5)return Math.floor(df/36e5)+'h前';return d.toLocaleDateString('zh-CN',{month:'short',day:'numeric'})}
@@ -937,6 +931,10 @@ function closeInstallModal(){document.getElementById('installModal').classList.r
 
 // 注册 SW
 if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(()=>{})}
+
+// 已有 localStorage 配置则隐藏设置页，否则预填默认值
+if(localStorage.getItem('lr_url')){$('#setupOverlay').classList.remove('show')}
+else{$('#setupUrl').value=SUPABASE_URL;$('#setupKey').value=SUPABASE_KEY}
 </script>
 
 <!-- 安装按钮 -->
