@@ -8,8 +8,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="轻读">
 <meta name="theme-color" content="#0ea5e9">
-<link rel="apple-touch-icon" sizes="180x180" href="/icon.png">
-<link rel="icon" href="/icon.png">
+<link rel="apple-touch-icon" sizes="180x180" href="icon.png">
+<link rel="icon" href="icon.png">
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/github.min.css">
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
@@ -479,7 +479,7 @@ async function finishSetup(btn){
   SUPABASE_URL=u;SUPABASE_KEY=k;H={'apikey':k,'Authorization':'Bearer '+k,'Content-Type':'application/json'};
   btn.textContent='⏳ 连接中...';btn.disabled=true;
   // 隐藏设置页
-  document.getElementById('setupOverlay').classList.remove('show');
+  (function(){var o=document.getElementById('setupOverlay');if(o)o.classList.remove('show')})();
   try{
     const res=await fetch(u+'/rest/v1/documents?select=id&limit=1',{headers:H});
     if(!res.ok)throw new Error('HTTP '+res.status);
@@ -491,11 +491,11 @@ async function finishSetup(btn){
 }
 function skipSetup(){
   if(localStorage.getItem('lr_url')){
-    document.getElementById('setupOverlay').classList.remove('show');
+    (function(){var o=document.getElementById('setupOverlay');if(o)o.classList.remove('show')})();
     loadDocs();loadCountdowns();loadIdeas();loadMemories();loadLifeMoments();return;
   }
   if(confirm('跳过设置将使用默认演示数据库（只读，不能保存）。确定跳过？')){
-    document.getElementById('setupOverlay').classList.remove('show');
+    (function(){var o=document.getElementById('setupOverlay');if(o)o.classList.remove('show')})();
     loadDocs();loadCountdowns();loadIdeas();loadMemories();loadLifeMoments();
   }
 }
@@ -951,7 +951,7 @@ async function finishSetup(btn){
     alert('⚠️ 连接失败（配置已保存）：'+e.message+'\n\n下次打开不会再弹此页\n请检查 Supabase 是否已执行 setup.sql');
     return;
   }
-  document.getElementById('setupOverlay').classList.remove('show');
+  (function(){var o=document.getElementById('setupOverlay');if(o)o.classList.remove('show')})();
   await loadDocs();await loadCountdowns();await loadIdeas();await loadMemories();await loadLifeMoments();
   showQuote();showColor();initDatePicker('countdownPicker');initDatePicker('lifePicker');
 }
@@ -959,7 +959,7 @@ async function finishSetup(btn){
 // 已有配置直接进，没有则显示设置页
 (function(){
   if(SUPABASE_KEY){
-    document.getElementById('setupOverlay').classList.remove('show');
+    (function(){var o=document.getElementById('setupOverlay');if(o)o.classList.remove('show')})();
     loadDocs();loadCountdowns();loadIdeas();loadMemories();loadLifeMoments();
     showQuote();showColor();initDatePicker('countdownPicker');initDatePicker('lifePicker');
   }else{
