@@ -289,6 +289,9 @@ body{font-family:var(--sans);background:linear-gradient(170deg,#e8f4f8 0%,#f5f0e
   </div>
 </div>
 
+<!-- 顶部提示条 -->
+<div id="topBanner" style="display:none;background:#fef2f2;color:#dc2626;padding:8px 14px;text-align:center;font-size:.72rem;border-bottom:1px solid #fecaca;cursor:pointer" onclick="this.style.display='none'"></div>
+
 <!-- Tab 栏 -->
 <div class="tabs" id="tabs">
   <button class="tab-btn active" data-panel="reader"><span class="icon">📖</span>阅读</button>
@@ -492,18 +495,19 @@ async function finishSetup(btn){
   const u=document.getElementById('setupUrl').value.trim();
   const k=document.getElementById('setupKey').value.trim();
   if(!u||!k){alert('请填写 Supabase URL 和 Key');return}
-  // 无论如何先保存，下次刷新不再弹设置页
+  // 先保存配置
   localStorage.setItem('lr_url',u);localStorage.setItem('lr_key',k);
   SUPABASE_URL=u;SUPABASE_KEY=k;H={'apikey':k,'Authorization':'Bearer '+k,'Content-Type':'application/json'};
   btn.textContent='⏳ 连接中...';btn.disabled=true;
+  // 隐藏设置页
+  document.getElementById('setupOverlay').classList.remove('show');
   try{
     const res=await fetch(u+'/rest/v1/documents?select=id&limit=1',{headers:H});
     if(!res.ok)throw new Error('HTTP '+res.status);
-    document.getElementById('setupOverlay').classList.remove('show');
     await loadDocs();await loadCountdowns();await loadIdeas();await loadMemories();await loadLifeMoments();
   }catch(e){
-    btn.textContent='✨ 开始使用';btn.disabled=false;
-    alert('⚠️ 连接失败：'+e.message+'\n\n但配置已保存，下次打开不会再弹此页。\n请检查：\n1. URL 是否以 https:// 开头\n2. Key 是否完整复制\n3. 是否在 Supabase 执行了 setup.sql');
+    // 连接失败但已进入主页，显示顶部提示
+    showTopBanner('⚠️ 连接失败：'+e.message+' — 请确认 Supabase 中已执行 setup.sql');
   }
 }
 function skipSetup(){
@@ -942,6 +946,8 @@ function closeInstallModal(){document.getElementById('installModal').classList.r
 
 // 注册 SW
 if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(()=>{})}
+
+function showTopBanner(msg){var b=document.getElementById('topBanner');b.textContent=msg;b.style.display='block'}
 
 // 已有 localStorage 配置则隐藏设置页，否则预填默认值
 (function(){
