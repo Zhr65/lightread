@@ -460,7 +460,7 @@ body{font-family:var(--sans);background:linear-gradient(170deg,#e8f4f8 0%,#f5f0e
 // ========== 配置（硬编码——别人部署时换成自己的） ==========
 const SUPABASE_URL='https://nctkutjmjyvccnnwzddt.supabase.co';
 const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5jdGt1dGptanl2Y2Nubnd6ZGR0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2NDE1MTEsImV4cCI6MjA5NzIxNzUxMX0.hCylCiO0pdkW9vsRB8kw6tBUL1FlVPxz_qO5yXOaqVw';
-let H=SUPABASE_KEY?{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json'}:null;
+const H={'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json'};
 
 // ========== 首次设置 ==========
 function autoSaveSetup(){
@@ -957,10 +957,17 @@ async function finishSetup(btn){
 }
 
 // 已有配置直接进，没有则显示设置页
-// 启动
-initDatePicker('countdownPicker');initDatePicker('lifePicker');
-loadDocs();loadCountdowns();loadIdeas();loadMemories();loadLifeMoments();
-showQuote();showColor();
+(function(){
+  if(SUPABASE_KEY){
+    document.getElementById('setupOverlay').classList.remove('show');
+    loadDocs();loadCountdowns();loadIdeas();loadMemories();loadLifeMoments();
+    showQuote();showColor();initDatePicker('countdownPicker');initDatePicker('lifePicker');
+  }else{
+    // 预填默认值
+    var u=document.getElementById('setupUrl');if(u)u.value=SUPABASE_URL||MY_URL;
+    var k=document.getElementById('setupKey');if(k)k.value=SUPABASE_KEY||MY_KEY;
+  }
+})();
 </script>
 
 <!-- 安装按钮 -->
