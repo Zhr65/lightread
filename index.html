@@ -270,25 +270,6 @@ body{font-family:var(--sans);background:linear-gradient(170deg,#e8f4f8 0%,#f5f0e
 .setup-card .steps a{color:var(--ocean);font-weight:600}
 </style></head><body>
 
-<!-- 首次设置页 -->
-<div class="setup-overlay show" id="setupOverlay">
-  <div class="setup-card">
-    <h1>🌊 轻读</h1>
-    <div class="sub">你的个人轻量空间<br>阅读 · 灵感 · 倒数日 · 记忆 · 生活</div>
-    <div class="steps">
-      <b>🔧 首次设置（5 分钟，一次就好）</b><br>
-      1️⃣ 打开 <a href="https://supabase.com" target="_blank">supabase.com</a>，注册账号（免费）<br>
-      2️⃣ 创建新项目 → 进 SQL Editor → 粘贴 <b>setup.sql</b> 全部内容 → 点 Run<br>
-      3️⃣ 左侧 Settings → API → 把下面两个值复制过来：
-    </div>
-    <input type="text" id="setupUrl" placeholder="Project URL（https://xxxxx.supabase.co）" oninput="autoSaveSetup()">
-    <input type="text" id="setupKey" placeholder="anon public key（eyJ 开头的一长串）" oninput="autoSaveSetup()">
-    <div class="hint">🔒 你的数据只存在你自己的 Supabase 数据库里，不经任何第三方。配置保存在浏览器本地。</div>
-    <button class="btn" id="setupBtn" onclick="finishSetup(this)" style="width:100%;padding:14px;font-size:.9rem">✨ 开始使用</button>
-    <div style="font-size:.65rem;color:var(--text2);margin-top:12px">已有配置？<a href="#" onclick="skipSetup()" style="color:var(--ocean)">直接进入</a></div>
-  </div>
-</div>
-
 <!-- 顶部提示条 -->
 <div id="topBanner" style="display:none;background:#fef2f2;color:#dc2626;padding:8px 14px;text-align:center;font-size:.72rem;border-bottom:1px solid #fecaca;cursor:pointer" onclick="this.style.display='none'"></div>
 
@@ -926,20 +907,23 @@ loadDocs();showQuote();showColor();
 
 // ========== PWA 安装 ==========
 let installPrompt=null;
-window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installPrompt=e;$('#installBtn').classList.add('show')});
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installPrompt=e});
+// 安卓安装按钮始终显示
+$('#installBtn').classList.add('show');
 function showInstall(){
   if(installPrompt){installPrompt.prompt();installPrompt.userChoice.then(r=>{if(r.outcome==='accepted')$('#installBtn').classList.remove('show')});return}
-  // 检测浏览器
-  const ua=navigator.userAgent;let browser='chrome',steps='';
-  if(ua.includes('UCBrowser')||ua.includes('UCWEB')){browser='uc';steps='① 点底部菜单 ② 点「添加至桌面」③ 确认'}
-  else if(ua.includes('QQ/')){browser='qq';steps='① 点底部 ⋮ ② 点「发送到桌面」③ 确认'}
-  else if(ua.includes('MicroMessenger')){browser='wechat';steps='① 点右上角 ··· ② 点「在浏览器中打开」③ 用 Chrome 打开后按 Chrome 方式安装'}
-  else if(ua.includes('Baidu')){browser='baidu';steps='① 点底部菜单 ② 点「添加到桌面」'}
-  else if(ua.includes('SamsungBrowser')){browser='samsung';steps='① 点地址栏右侧 ↓ 图标 ② 点「安装」'}
-  else{steps='① 点浏览器菜单（⋮ 或 ≡）\n② 找「安装应用」或「添加到主屏幕」\n③ 确认添加\n\n💡 推荐用 Chrome 浏览器，体验最好'}
+  // 自动检测浏览器
+  showInstallModal();
+}
+function showInstallModal(){
+  const ua=navigator.userAgent;let id='steps-chrome';
+  if(ua.includes('UCBrowser')||ua.includes('UCWEB'))id='steps-uc';
+  else if(ua.includes('QQ/'))id='steps-qq';
+  else if(ua.includes('MicroMessenger'))id='steps-wechat';
+  else if(ua.includes('Baidu'))id='steps-baidu';
+  else if(ua.includes('SamsungBrowser'))id='steps-samsung';
   document.querySelectorAll('.browser-steps').forEach(s=>s.classList.remove('show'));
-  const el=document.getElementById('steps-'+browser);
-  if(el)el.classList.add('show');else document.getElementById('steps-chrome').classList.add('show');
+  var el=document.getElementById(id);if(el)el.classList.add('show');
   document.getElementById('installModal').classList.add('show');
 }
 function closeInstallModal(){document.getElementById('installModal').classList.remove('show')}
@@ -967,24 +951,32 @@ function showTopBanner(msg){var b=document.getElementById('topBanner');b.textCon
 <div class="install-modal" id="installModal" onclick="if(event.target===this)closeInstallModal()">
   <div class="modal-content">
     <h3>📲 安装「轻读」到桌面</h3>
-    <div class="browser-steps show" id="steps-chrome" style="white-space:pre-line">① 点右上角 ⋮ 菜单
-② 点「安装应用」或「添加到主屏幕」
-③ 确认添加</div>
-    <div class="browser-steps" id="steps-uc" style="white-space:pre-line">① 点底部菜单按钮
-② 找到「添加至桌面」
-③ 确认添加</div>
-    <div class="browser-steps" id="steps-qq" style="white-space:pre-line">① 点底部中间的 ⋮
-② 点「发送到桌面」
-③ 确认添加</div>
-    <div class="browser-steps" id="steps-wechat" style="white-space:pre-line">① 点右上角 ···
-② 点「在浏览器中打开」
-③ 用 Chrome 打开后，按上方 Chrome 方式安装</div>
-    <div class="browser-steps" id="steps-baidu" style="white-space:pre-line">① 点底部菜单
-② 找「添加到桌面」
-③ 确认添加</div>
-    <div class="browser-steps" id="steps-samsung" style="white-space:pre-line">① 点地址栏右侧 ↓ 图标
-② 点「安装」
-③ 确认添加</div>
+    <div class="browser-steps show" id="steps-chrome" style="white-space:pre-line">✅ 点右上角 ⋮ 菜单 → 「安装应用」或「添加到主屏幕」
+✅ 确认后桌面会出现「轻读」图标
+
+如果菜单里没有安装选项：
+→ 说明当前不是 Chrome 浏览器
+→ 建议安装 Chrome 后重新打开此链接</div>
+    <div class="browser-steps" id="steps-uc" style="white-space:pre-line">✅ 点底部菜单 → 「添加至桌面」
+✅ 确认添加
+
+如果找不到：
+→ 建议用 Chrome 浏览器打开此链接，支持一键安装</div>
+    <div class="browser-steps" id="steps-qq" style="white-space:pre-line">✅ 点底部 ⋮ → 「发送到桌面」
+✅ 确认添加
+
+如果找不到：
+→ 建议用 Chrome 浏览器打开此链接</div>
+    <div class="browser-steps" id="steps-wechat" style="white-space:pre-line">⚠️ 微信内置浏览器不支持安装到桌面
+✅ 点右上角 ··· → 「在浏览器中打开」
+✅ 用 Chrome 打开后，按 Chrome 方式安装</div>
+    <div class="browser-steps" id="steps-baidu" style="white-space:pre-line">✅ 点底部菜单 → 「添加到桌面」
+✅ 确认添加
+
+如果找不到：
+→ 建议用 Chrome 浏览器打开此链接</div>
+    <div class="browser-steps" id="steps-samsung" style="white-space:pre-line">✅ 点地址栏右侧 ↓ 图标 → 「安装」
+✅ 确认添加</div>
     <div class="btn-row">
       <button class="btn-outline" onclick="closeInstallModal()">关闭</button>
     </div>
