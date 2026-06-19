@@ -98,3 +98,40 @@ CREATE TABLE IF NOT EXISTS life_moments (
 ALTER TABLE life_moments ENABLE ROW LEVEL SECURITY;
 SELECT safe_policy('life_moments','anon_life');
 CREATE INDEX IF NOT EXISTS idx_life_date ON life_moments (moment_date DESC);
+
+-- ============================================
+-- 6. 桌宠同步 🐾
+-- ============================================
+CREATE TABLE IF NOT EXISTS pet_sync (
+  id INTEGER PRIMARY KEY DEFAULT 1,
+  pets JSONB NOT NULL DEFAULT '[]'::jsonb,
+  current_pet TEXT DEFAULT 'cat',
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+ALTER TABLE pet_sync ENABLE ROW LEVEL SECURITY;
+SELECT safe_policy('pet_sync','anon_pet_sync');
+INSERT INTO pet_sync (id, pets, current_pet) VALUES (1, '[]'::jsonb, 'cat')
+  ON CONFLICT (id) DO NOTHING;
+
+-- ============================================
+-- 7. 壁纸同步 🎨
+-- ============================================
+CREATE TABLE IF NOT EXISTS wallpaper_sync (
+  id INTEGER PRIMARY KEY DEFAULT 1,
+  bg_mode TEXT NOT NULL DEFAULT 'default',
+  bg_gradient TEXT,
+  bg_image TEXT,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+ALTER TABLE wallpaper_sync ENABLE ROW LEVEL SECURITY;
+SELECT safe_policy('wallpaper_sync','anon_wp_sync');
+INSERT INTO wallpaper_sync (id, bg_mode) VALUES (1, 'default')
+  ON CONFLICT (id) DO NOTHING;
+
+-- ============================================
+-- 8. Storage buckets（手动在 Supabase 控制台创建）
+-- ============================================
+-- 请在 Supabase → Storage → 新建 bucket：
+--   名称: pets       → 勾选 "Public bucket"
+--   名称: wallpapers → 勾选 "Public bucket"
+-- SQL 无法通过 REST API 创建 bucket，需在控制台操作

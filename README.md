@@ -28,7 +28,7 @@ const SUPABASE_KEY='eyJhbGciOiJI...';                 // ← 改成你的 anon k
 
 - **Gitee**：新建仓库 → 上传所有文件 → 服务 → Gitee Pages → 开启
 - **GitHub**：新建仓库 → 上传所有文件 → Settings → Pages → 开启
-- **拖拽部署**：[tiiny.host](https://tiiny.host) → 上传 ZIP → 得到链接
+- **拖拽部署**：[netlify](https://app.netlify.com/drop) → 得到链接
 
 ---
 
